@@ -1,0 +1,15 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "email": "123@mail.ru",
+      "password": "123456"
+    },
+    {
+      "id": 2,
+      "email": "haritonov@mail.ru",
+      "password": "111111"
+    }
+  ],
+  "verifyCode": "123456"
+}

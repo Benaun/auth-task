@@ -1,1 +1,1 @@
-export { SecondFactorForm } from './SecondFactorForm'
+export { SecondFactor } from './SecondFactor'

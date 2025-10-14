@@ -1,60 +1,111 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useEffect, useState } from 'react'
 import { type SubmitHandler, useForm } from 'react-hook-form'
 
-import { type LoginFormData, loginSchema } from '@/features/auth/model'
-import { Button, Input, Logo, Title } from '@/shared/ui'
+import { useLogin } from '@/features/auth'
+import {
+  type LoginFormData,
+  loginSchema,
+  type AuthResponse
+} from '@/features/auth/model'
+
 import { LockIcon, UserIcon } from '@/shared/icons'
+import { Button, Input, Logo, Title } from '@/shared/ui'
 
-export const LoginForm = () => {
-    const {
-        register,
-        handleSubmit,
-        watch,
-        formState: { errors }
-    } = useForm<LoginFormData>({
-        resolver: zodResolver(loginSchema),
-        mode: 'onChange'
+interface LoginFormProps {
+  onLoginSuccess: (data: LoginFormData) => void
+  initialValues?: LoginFormData
+}
+
+export const LoginForm = ({
+  onLoginSuccess,
+  initialValues
+}: LoginFormProps) => {
+  const [errorMessage, setErrorMessage] = useState<string>('')
+  const { login, isLoading } = useLogin()
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors }
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: 'onChange',
+    defaultValues: initialValues ?? { email: '', password: '' }
+  })
+
+  useEffect(() => {
+    if (!initialValues) return
+  }, [initialValues])
+
+  const email = watch('email')
+  const password = watch('password')
+
+  const isDisabled = !email || !password || isLoading
+
+  const onSubmit: SubmitHandler<LoginFormData> = formData => {
+    setErrorMessage('')
+    login(formData, {
+      onSuccess: (response: AuthResponse) => {
+        if (response.success) {
+          onLoginSuccess(formData)
+        } else {
+          setErrorMessage(response.message)
+        }
+      },
+      onError: () => {
+        setErrorMessage(
+          'Произошла ошибка при входе. Попробуйте позже.'
+        )
+      }
     })
+  }
 
-    const email = watch('email')
-    const password = watch('password')
+  return (
+    <div className='w-[440px] min-h-[372px] bg-[#FFFFFF]'>
+      <div className='flex flex-col m-8 items-center'>
+        <Logo />
+        <Title
+          className='text-2xl h-16'
+          text='Sign in to your account to continue'
+        />
 
-    const isDisabled = !email || !password
+        {errorMessage && (
+          <div className='w-full mt-4 p-3 bg-red-50 border border-red-200 rounded-md'>
+            <p className='text-red-600 text-sm'>
+              {errorMessage}
+            </p>
+          </div>
+        )}
 
-    const onSubmit: SubmitHandler<LoginFormData> = data => {
-        alert(JSON.stringify(data))
-    }
-
-    return (
-        <div className='w-[440px] min-h-[372px] bg-[#FFFFFF]'>
-            <div className='flex flex-col m-8 items-center'>
-                <Logo />
-                <Title size='2xl' height='16' text='Sign in to your account to continue' />
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className='flex flex-col gap-4 w-full mt-6'
-                >
-                    <Input
-                        label='email'
-                        type='email'
-                        register={register}
-                        required
-                        placeholder='email'
-                        icon={UserIcon}
-                        error={errors.email}
-                    />
-                    <Input
-                        label='password'
-                        type='password'
-                        register={register}
-                        required
-                        placeholder='password'
-                        icon={LockIcon}
-                        error={errors.password}
-                    />
-                    <Button type='submit' text='Log in' disabled={isDisabled} />
-                </form>
-            </div>
-        </div>
-    )
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className='flex flex-col gap-4 w-full mt-6'
+        >
+          <Input
+            label='email'
+            type='email'
+            register={register}
+            required
+            placeholder='email'
+            icon={UserIcon}
+            error={errors.email}
+          />
+          <Input
+            label='password'
+            type='password'
+            register={register}
+            required
+            placeholder='password'
+            icon={LockIcon}
+            error={errors.password}
+          />
+          <Button type='submit' disabled={isDisabled}>
+            {isLoading ? 'Вход...' : 'Log in'}
+          </Button>
+        </form>
+      </div>
+    </div>
+  )
 }
