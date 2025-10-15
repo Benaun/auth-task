@@ -14,9 +14,9 @@ export const loginUser = async (
     const users: User[] = await response.json()
 
     const user = users.find(
-      u =>
-        u.email === credentials.email &&
-        u.password === credentials.password
+      user =>
+        user.email === credentials.email &&
+        user.password === credentials.password
     )
 
     if (user) {

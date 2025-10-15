@@ -4,15 +4,15 @@ import { type SubmitHandler, useForm } from 'react-hook-form'
 
 import { useLogin } from '@/features/auth'
 import {
+  type AuthResponse,
   type LoginFormData,
-  loginSchema,
-  type AuthResponse
+  loginSchema
 } from '@/features/auth/model'
 
 import { LockIcon, UserIcon } from '@/shared/icons'
 import { Button, Input, Logo, Title } from '@/shared/ui'
 
-interface LoginFormProps {
+interface IProps {
   onLoginSuccess: (data: LoginFormData) => void
   initialValues?: LoginFormData
 }
@@ -20,7 +20,7 @@ interface LoginFormProps {
 export const LoginForm = ({
   onLoginSuccess,
   initialValues
-}: LoginFormProps) => {
+}: IProps) => {
   const [errorMessage, setErrorMessage] = useState<string>('')
   const { login, isLoading } = useLogin()
 

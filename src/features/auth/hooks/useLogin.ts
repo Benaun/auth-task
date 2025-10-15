@@ -18,9 +18,6 @@ export const useLogin = () => {
 
   return {
     login: loginMutation.mutate,
-    isLoading: loginMutation.isPending,
-    error: loginMutation.error,
-    data: loginMutation.data,
-    isSuccess: loginMutation.isSuccess
+    isLoading: loginMutation.isPending
   }
 }

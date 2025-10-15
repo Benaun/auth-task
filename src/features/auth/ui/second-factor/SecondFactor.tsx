@@ -3,28 +3,26 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { secondFactorSchema } from '@/features/auth'
 import { useVerifyCode } from '@/features/auth'
 
+import { formatTime } from '@/shared/assets/functions'
 import { BackIcon } from '@/shared/icons'
 import { Button, Logo, Text, Title } from '@/shared/ui'
+
 import { SecondFactorForm } from './SecondFactorForm'
-import { formatTime } from '@/shared/assets/functions'
+import { config } from '@/shared/config/config'
 
 interface IProps {
     onBack: () => void
 }
 
+const initialState: string[] = ['', '', '', '', '', '']
+
 export const SecondFactor = ({ onBack }: IProps) => {
-    const RESEND_SECONDS = 10
-    const [codeValues, setCodeValues] = useState<string[]>([
-        '',
-        '',
-        '',
-        '',
-        '',
-        ''
-    ])
+    const [codeValues, setCodeValues] =
+        useState<string[]>(initialState)
     const [hasError, setHasError] = useState<boolean>(false)
     const inputRefs = useRef<Array<HTMLInputElement | null>>([])
-    const [secondsLeft, setSecondsLeft] = useState<number>(RESEND_SECONDS)
+    const [secondsLeft, setSecondsLeft] =
+        useState<number>(config.RESEND_SECONDS)
 
     const isComplete = useMemo(
         () => codeValues.every(v => v.length === 1),
@@ -36,13 +34,11 @@ export const SecondFactor = ({ onBack }: IProps) => {
     useEffect(() => {
         if (isComplete) return
         if (secondsLeft <= 0) return
-        const id = setInterval(() => {
+        const interval = setInterval(() => {
             setSecondsLeft(prev => (prev > 0 ? prev - 1 : 0))
         }, 1000)
-        return () => clearInterval(id)
+        return () => clearInterval(interval)
     }, [isComplete, secondsLeft])
-
-
 
     function handleChange(index: number, value: string) {
         if (!/^[0-9]?$/.test(value)) return
@@ -163,7 +159,10 @@ export const SecondFactor = ({ onBack }: IProps) => {
                     <div className='w-full mt-4'>
                         <Button
                             type='button'
-                            onClick={() => secondsLeft === 0 && setSecondsLeft(RESEND_SECONDS)}
+                            onClick={() =>
+                                secondsLeft === 0 &&
+                                setSecondsLeft(config.RESEND_SECONDS)
+                            }
                             className='w-full'
                             disabled={secondsLeft > 0}
                         >
