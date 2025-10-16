@@ -31,8 +31,6 @@ export const SecondFactorForm = ({
             handleChange(i, e.target.value.slice(-1))
           }
           onKeyDown={e => handleKeyDown(i, e)}
-          inputMode='numeric'
-          aria-label={`Digit ${i + 1}`}
           tabIndex={0}
           className={`w-[52px] h-[60px] text-center text-xl font-bold rounded-md border ${
             hasError ? 'border-red-500' : 'border-gray-300'

@@ -23,7 +23,7 @@ export const LoginForm = ({
   const [errorMessage, setErrorMessage] = useState<string>('')
   const [credentials, setCredentials] =
     useState<LoginFormData | null>(null)
-  const { data, isLoading, error } = useLogin(credentials)
+  const { data: user, isLoading, error } = useLogin(credentials)
 
   const {
     register,
@@ -51,15 +51,15 @@ export const LoginForm = ({
   }
 
   useEffect(() => {
-    if (data) {
-      if (data.success) {
+    if (user) {
+      if (user.success) {
         onLoginSuccess(credentials!)
         setCredentials(null)
       } else {
-        setErrorMessage(data.message)
+        setErrorMessage(user.message)
       }
     }
-  }, [data, credentials, onLoginSuccess])
+  }, [user, credentials, onLoginSuccess])
 
   useEffect(() => {
     if (error) {
