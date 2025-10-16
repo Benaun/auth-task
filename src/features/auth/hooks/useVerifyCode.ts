@@ -1,18 +1,20 @@
-import { useMutation } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
 import { getVerifyCode } from '../api'
 
-export const useVerifyCode = () => {
-  const verifyMutation = useMutation({
-    mutationFn: async (enteredCode: string) => {
+export const useVerifyCode = (enteredCode: string | null) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['verify', enteredCode],
+    queryFn: async () => {
       const verifyCode = await getVerifyCode()
       return enteredCode === String(verifyCode)
-    }
+    },
+    enabled: !!enteredCode
   })
 
   return {
-    verify: verifyMutation.mutate,
-    isLoading: verifyMutation.isPending,
-    isSuccess: verifyMutation.isSuccess
+    isVerified: data,
+    isLoading,
+    error
   }
 }

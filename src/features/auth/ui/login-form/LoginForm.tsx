@@ -4,7 +4,6 @@ import { type SubmitHandler, useForm } from 'react-hook-form'
 
 import { useLogin } from '@/features/auth'
 import {
-  type AuthResponse,
   type LoginFormData,
   loginSchema
 } from '@/features/auth/model'
@@ -22,7 +21,9 @@ export const LoginForm = ({
   initialValues
 }: IProps) => {
   const [errorMessage, setErrorMessage] = useState<string>('')
-  const { login, isLoading } = useLogin()
+  const [credentials, setCredentials] =
+    useState<LoginFormData | null>(null)
+  const { data, isLoading, error } = useLogin(credentials)
 
   const {
     register,
@@ -46,21 +47,27 @@ export const LoginForm = ({
 
   const onSubmit: SubmitHandler<LoginFormData> = formData => {
     setErrorMessage('')
-    login(formData, {
-      onSuccess: (response: AuthResponse) => {
-        if (response.success) {
-          onLoginSuccess(formData)
-        } else {
-          setErrorMessage(response.message)
-        }
-      },
-      onError: () => {
-        setErrorMessage(
-          'Произошла ошибка при входе. Попробуйте позже.'
-        )
-      }
-    })
+    setCredentials(formData)
   }
+
+  useEffect(() => {
+    if (data) {
+      if (data.success) {
+        onLoginSuccess(credentials!)
+        setCredentials(null)
+      } else {
+        setErrorMessage(data.message)
+      }
+    }
+  }, [data, credentials, onLoginSuccess])
+
+  useEffect(() => {
+    if (error) {
+      setErrorMessage(
+        'Произошла ошибка при входе. Попробуйте позже.'
+      )
+    }
+  }, [error])
 
   return (
     <div className='w-[440px] min-h-[372px] bg-[#FFFFFF]'>
